@@ -1,0 +1,1083 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/*  SenJun — design tokens (Tailwind v4 theme)                         */
+/* ------------------------------------------------------------------ */
+@theme inline {
+  --color-cream: #f6e3b5;
+  --color-cream-deep: #ecd79e;
+  --color-mist: #f9eecd;
+  --color-sky: #0c8abd;
+  --color-deep: #33444e;
+  --color-leaf: #37b56b;
+  --color-ink: #2f2f2f;
+  --color-sun: #f6d889;
+
+  --font-display: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-body: var(--font-manrope), "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: var(--font-caveat), "Caveat", cursive;
+}
+
+:root {
+  --senjun-cream: #f6e3b5;
+  --senjun-sky: #0c8abd;
+  --senjun-deep: #33444e;
+  --senjun-leaf: #37b56b;
+  --senjun-ink: #2f2f2f;
+  --senjun-sun: #f6d889;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
+/* One scroll = one page — snapping is driven by ScrollSnap + Lenis.
+   CSS smooth-scroll would fight the custom snap, so it stays off. */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  background: var(--senjun-cream);
+  color: var(--senjun-ink);
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(12, 138, 189, 0.18);
+  color: var(--senjun-deep);
+}
+
+:focus-visible {
+  outline: 2px solid var(--senjun-sky);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Reveal lines (opening copy) — hidden until GSAP fades them in.
+   Stay visible when JS / motion is unavailable. */
+.reveal-line {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-line {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hint-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .wheel-dot {
+    animation: none !important;
+    opacity: 0.6 !important;
+  }
+  .gib-skirt {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  SVG animation keyframes                                            */
+/* ------------------------------------------------------------------ */
+
+/* Blink — irregular rhythm, roughly every 5s */
+@keyframes gib-blink {
+  0%,
+  43.4%,
+  46.6%,
+  100% {
+    transform: scaleY(1);
+  }
+  45% {
+    transform: scaleY(0.06);
+  }
+}
+.gib-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: gib-blink 5.4s infinite;
+}
+
+/* Hair strands — gentle wind */
+@keyframes gib-sway {
+  from {
+    transform: rotate(-1.8deg);
+  }
+  to {
+    transform: rotate(1.8deg);
+  }
+}
+.gib-strand {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: gib-sway 4.6s ease-in-out infinite alternate;
+}
+
+/* Skirt — soft ripple of the hem in the breeze */
+@keyframes gib-skirt-sway {
+  from {
+    transform: rotate(-1.4deg);
+  }
+  to {
+    transform: rotate(1.4deg);
+  }
+}
+.gib-skirt {
+  transform-box: fill-box;
+  transform-origin: 50% 6%;
+  animation: gib-skirt-sway 5.4s ease-in-out infinite alternate;
+}
+
+/* Plants & trees — very subtle sway */
+@keyframes gib-sway-plant {
+  from {
+    transform: rotate(-1.1deg);
+  }
+  to {
+    transform: rotate(1.1deg);
+  }
+}
+.sway-plant {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: gib-sway-plant 4.4s ease-in-out infinite alternate;
+}
+.sway-tree {
+  animation-duration: 9s;
+  animation-name: gib-sway-plant;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+/* SVG transform-box helper — lets GSAP use percentages of the element's
+   own bounding box (e.g. breathing scale from the hips). */
+.gib-origin {
+  transform-box: fill-box;
+}
+
+/* Butterfly wings — realistic fast flap */
+@keyframes gib-flap {
+  0%,
+  100% {
+    transform: scaleX(1);
+  }
+  50% {
+    transform: scaleX(0.32);
+  }
+}
+.bf-wing {
+  transform-box: fill-box;
+  transform-origin: 6% 45%;
+  animation: gib-flap 0.26s ease-in-out infinite;
+}
+.bf-wing--left {
+  transform-origin: 94% 45%;
+  animation-delay: 0.04s;
+}
+.bf-wing--hind {
+  animation-delay: 0.06s;
+}
+.bf-wing--left.bf-wing--hind {
+  animation-delay: 0.1s;
+}
+
+/* Mini butterfly (bottom hint) */
+@keyframes mini-flap {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.5);
+  }
+}
+.mini-butterfly-wing {
+  transform-box: fill-box;
+  transform-origin: 10% 50%;
+  animation: mini-flap 0.34s ease-in-out infinite;
+}
+.mini-butterfly-wing--r {
+  transform-origin: 90% 50%;
+  animation-delay: 0.06s;
+}
+
+/* Bottom hint entrance */
+@keyframes hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.hint-in {
+  animation: hint-in 1.6s ease both;
+  animation-delay: 4.8s;
+}
+
+/* Mouse-wheel hint dot */
+@keyframes wheel-hint {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(13px);
+    opacity: 0;
+  }
+}
+.wheel-dot {
+  animation: wheel-hint 1.9s ease-in-out infinite;
+}
+
+/* Subtle breathing of the golden glow */
+@keyframes glow-breathe {
+  0%,
+  100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 0.62;
+  }
+}
+.glow-breathe {
+  animation: glow-breathe 3.2s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section One — hero artwork (right side)                            */
+/* ------------------------------------------------------------------ */
+
+/* senjun-hero.png replaces the painted garden illustration.
+   It keeps its native proportions at every size (width drives height —
+   never stretched, never squashed):
+   · phone / tablet  — spans the full illustration area, uncropped, so the
+     characters, butterfly and house all stay in frame;
+   · desktop (lg+)   — grows to 120% of the column and anchors to the
+     bottom-right corner, so it fills the right-hand side of the ~100vh
+     hero and bleeds a little into the middle gap. The column no longer
+     clips it: the left-edge mask below is what ends the artwork, so the
+     transition into the cream is soft rather than a hard boundary.
+   Cream fades melt its edges into the page, and it is pointer-transparent
+   so the butterfly's mouse-curiosity still reaches the section. */
+.senjun-hero-image {
+  position: absolute;
+  left: 0;
+  bottom: 50%;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  transform: translateY(50%);
+  pointer-events: none;
+  user-select: none;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 10%,
+    #000 94%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 10%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  /* Desktop — sit on the hero floor, filling the right ~56% of the section
+     and bleeding ~6-8% past the column into the middle gap. The left-edge
+     mask does the blending: there is NO hard vertical boundary, the artwork
+     simply dissolves out of the cream. The second (vertical) layer keeps
+     the top/bottom melt — the two masks intersect, so where a browser does
+     not know `mask-composite` the artwork falls back to the old vertical
+     fade instead of showing a hard edge. */
+  .senjun-hero-image {
+    left: auto;
+    right: 0;
+    bottom: 0;
+    width: 120%;
+    transform: none;
+    -webkit-mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(0, 0, 0, 0.25) 8%,
+        #000 20%,
+        #000 100%
+      ),
+      linear-gradient(to bottom, transparent 0%, #000 10%, #000 94%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(0, 0, 0, 0.25) 8%,
+        #000 20%,
+        #000 100%
+      ),
+      linear-gradient(to bottom, transparent 0%, #000 10%, #000 94%, transparent 100%);
+    mask-composite: intersect;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section One — the middle transition (butterfly journey)            */
+/* ------------------------------------------------------------------ */
+
+/* A quiet band between the story and the artwork. Decorative only:
+   pointer-transparent, aria-hidden, and only shown on desktop — below lg
+   the hero stacks, so there is no middle gap left to fill. */
+.senjun-journey {
+  position: absolute;
+  top: 50%;
+  left: 42%;
+  right: 40%;
+  z-index: 20;
+  display: none;
+  height: clamp(180px, 26vh, 252px);
+  transform: translateY(-52%);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .senjun-journey {
+    display: block;
+  }
+}
+
+/* Dotted flight trail — dashes drift almost imperceptibly toward the house */
+.senjun-journey-trail {
+  opacity: 0.5;
+  animation: journey-trail-drift 16s linear infinite;
+}
+
+@keyframes journey-trail-drift {
+  to {
+    stroke-dashoffset: -135;
+  }
+}
+
+/* The butterfly turns about its own body, not the SVG's origin */
+.senjun-journey-bf {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Handwritten note along the path — bigger, bolder and tracked out so it
+   feels like a small storytelling instruction (≈13–16 rendered px at
+   desktop, still far below the 56px heading). Casing stays handwritten. */
+.senjun-journey-phrase {
+  fill: #7e8d7b;
+  font-size: 17px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  opacity: 0.82;
+}
+
+/* A couple of leaves, drifting */
+.senjun-journey-leaf {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: journey-leaf var(--jl-dur, 10s) ease-in-out infinite alternate;
+  animation-delay: var(--jl-delay, 0s);
+}
+
+@keyframes journey-leaf {
+  from {
+    transform: translate(0, 0) rotate(-8deg);
+    opacity: 0.3;
+  }
+  to {
+    transform: translate(var(--jl-dx, 7px), -9px) rotate(14deg);
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .senjun-journey-trail,
+  .senjun-journey-leaf {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Homepage modules — garden decorations (flowers + butterflies)      */
+/* ------------------------------------------------------------------ */
+
+/* Slow enough to be felt rather than seen: a few pixels of drift, nothing
+   more. Frozen with the chapter by `.is-off`, and off under reduced motion. */
+.garden-flower,
+.garden-butterfly {
+  position: absolute;
+  pointer-events: none;
+}
+
+.garden-flower {
+  animation: garden-flower-sway var(--gf-dur, 8s) ease-in-out infinite alternate;
+  animation-delay: var(--gf-delay, 0s);
+}
+
+@keyframes garden-flower-sway {
+  from {
+    transform: translate(0, 0) rotate(-3deg);
+  }
+  to {
+    transform: translate(1.5px, -3px) rotate(3deg);
+  }
+}
+
+.garden-butterfly {
+  animation: garden-butterfly-float var(--gb-dur, 6.5s) ease-in-out infinite alternate;
+  animation-delay: var(--gb-delay, 0s);
+}
+
+@keyframes garden-butterfly-float {
+  from {
+    transform: translate(0, 0) rotate(var(--gb-rot-from, -4deg));
+  }
+  to {
+    transform: translate(var(--gb-dx, 8px), -10px) rotate(var(--gb-rot-to, 5deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .garden-flower,
+  .garden-butterfly,
+  .garden-butterfly .mini-butterfly-wing {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section Two — the storybook chapter                                */
+/* ------------------------------------------------------------------ */
+
+/* Floating handwritten story sentences — revealed by the scroll timeline */
+.story-line {
+  opacity: 0;
+  will-change: opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .story-line {
+    opacity: 1 !important;
+  }
+}
+
+/* Falling flower petals */
+@keyframes petal-fall {
+  0% {
+    transform: translateY(-8vh) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--petal-opacity, 0.8);
+  }
+  85% {
+    opacity: var(--petal-opacity, 0.8);
+  }
+  100% {
+    transform: translateY(106vh) translateX(var(--drift, 4vw)) rotate(300deg);
+    opacity: 0;
+  }
+}
+.petal {
+  position: absolute;
+  top: -8vh;
+  pointer-events: none;
+  border-radius: 62% 38% 58% 42%;
+  background: var(--petal-color, #f7c7d4);
+  opacity: 0;
+  animation: petal-fall var(--petal-duration, 13s) linear infinite;
+  animation-delay: var(--petal-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .petal {
+    display: none;
+  }
+}
+
+/* Stream shimmer */
+@keyframes stream-shimmer {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+.stream-shimmer {
+  animation: stream-shimmer 3.4s ease-in-out infinite;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section Three — courtyard life                                     */
+/* ------------------------------------------------------------------ */
+
+/* Steam rising from tea */
+@keyframes steam-rise {
+  0% {
+    transform: translateY(0) scaleY(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translateY(-16px) scaleY(1.3);
+    opacity: 0;
+  }
+}
+.steam {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: steam-rise 3.2s ease-out infinite;
+}
+
+/* Wind chimes */
+@keyframes chime-sway {
+  from {
+    transform: rotate(-3deg);
+  }
+  to {
+    transform: rotate(3deg);
+  }
+}
+.chime {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: chime-sway 3.8s ease-in-out infinite alternate;
+}
+
+/* Clothes on the line */
+@keyframes clothes-sway {
+  from {
+    transform: rotate(-2deg);
+  }
+  to {
+    transform: rotate(2deg);
+  }
+}
+.clothes-sway {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: clothes-sway 5.2s ease-in-out infinite alternate;
+}
+
+/* Cat tail */
+@keyframes cat-tail {
+  from {
+    transform: rotate(-14deg);
+  }
+  to {
+    transform: rotate(14deg);
+  }
+}
+.cat-tail {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: cat-tail 1.1s ease-in-out infinite alternate;
+}
+
+/* Puppy tail */
+@keyframes puppy-wag {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(8deg);
+  }
+}
+.puppy-wag {
+  transform-box: fill-box;
+  transform-origin: bottom left;
+  animation: puppy-wag 0.5s ease-in-out infinite alternate;
+}
+
+/* Fairy light bulbs */
+@keyframes bulb-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+.bulb-glow {
+  animation: bulb-glow 2.8s ease-in-out infinite;
+}
+
+/* Birthday candle flame */
+@keyframes flame-flicker {
+  0%,
+  100% {
+    opacity: 0.85;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.14);
+  }
+}
+.flame-flicker {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: flame-flicker 0.9s ease-in-out infinite;
+}
+
+/* Segment 3 seating — four bench groups, each a single cut-out PNG
+   (bench + residents as one composition) placed in viewBox coordinates so it
+   scales with the scene and needs no JS. A very slow, barely-there breath
+   keeps the courtyard feeling alive without breaking its calm. */
+@keyframes s3-idle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1.2px);
+  }
+}
+.segment3-seat-group {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: s3-idle 4.2s ease-in-out infinite;
+}
+.segment3-seat {
+  opacity: 0.96;
+  filter: drop-shadow(0 5px 3px rgba(94, 74, 50, 0.18));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steam,
+  .chime,
+  .clothes-sway,
+  .cat-tail,
+  .puppy-wag,
+  .bulb-glow,
+  .flame-flicker,
+  .segment3-seat-group {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section Four — the final chapter                                   */
+/* ------------------------------------------------------------------ */
+
+/* The heading, tagline and contact cards belong to the VISITOR, not to the
+   story timeline: they must be readable the instant Segment 4 exists, never
+   waiting on the door, the resident or a second scroll. A single 220ms fade
+   runs on render (pure CSS — no observer, no timer, no JS dependency), and
+   reduced-motion shows them with no animation at all. */
+@keyframes fade-in-now {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in-now {
+  animation: fade-in-now 220ms ease both;
+}
+
+/* Revealed by the scroll timeline (kept for anything still opting in) */
+.fade-in-late {
+  opacity: 0;
+}
+
+/* Final message lines */
+.final-line {
+  opacity: 0;
+}
+
+/* Stars — begin to appear as the evening deepens */
+@keyframes star-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+.star-twinkle {
+  animation: star-twinkle 3.4s ease-in-out infinite;
+}
+
+/* Fireflies drifting on the evening breeze */
+@keyframes firefly-float {
+  0% {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(var(--ff-dx, 30px), -26px);
+    opacity: 0.65;
+  }
+  85% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(calc(var(--ff-dx, 30px) * -0.4), 12px);
+    opacity: 0;
+  }
+}
+.firefly {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: #f6d889;
+  box-shadow: 0 0 8px 3px rgba(246, 216, 137, 0.65);
+  pointer-events: none;
+  animation: firefly-float var(--ff-dur, 9s) ease-in-out infinite;
+  animation-delay: var(--ff-delay, 0s);
+}
+
+/* Porch signboard — gently swings in the wind */
+@keyframes sign-swing {
+  from {
+    transform: rotate(-1.5deg);
+  }
+  to {
+    transform: rotate(1.5deg);
+  }
+}
+.sign-swing {
+  transform-origin: top center;
+  animation: sign-swing 3.8s ease-in-out infinite alternate;
+}
+
+/* Curtains billowing inside the windows */
+@keyframes curtain-sway {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(1.07);
+  }
+}
+.curtain-sway {
+  transform-box: fill-box;
+  transform-origin: top center;
+  animation: curtain-sway 5.2s ease-in-out infinite alternate;
+}
+
+/* The sleeping cat — slow, even breathing */
+@keyframes cat-sleep {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.05);
+  }
+}
+.cat-sleep {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: cat-sleep 4.2s ease-in-out infinite alternate;
+}
+
+/* Engraved wooden contact signs — soft glow on hover.
+   Spacious "part of the home" feel: organic corners, a little more room,
+   and a softer ambient shadow than a corporate card would have. */
+.plaque {
+  background: linear-gradient(180deg, #c89b62, #a97c45);
+  border: 2px solid #8a5a38;
+  border-radius: 16px 14px 18px 15px;
+  color: #4e3418;
+  text-shadow: 0 1px 0 rgba(255, 244, 214, 0.4);
+  box-shadow: 0 6px 18px -8px rgba(90, 60, 30, 0.45), inset 0 1px 0 rgba(255, 244, 214, 0.35);
+  transition: box-shadow 0.4s ease, transform 0.4s ease;
+}
+.plaque:hover,
+.plaque:focus-visible {
+  box-shadow: 0 0 24px rgba(246, 216, 137, 0.85), inset 0 1px 0 rgba(255, 244, 214, 0.5);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade-in-late,
+  .fade-in-now,
+  .final-line {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+  .star-twinkle,
+  .firefly,
+  .sign-swing,
+  .curtain-sway,
+  .cat-sleep {
+    animation: none !important;
+  }
+  .firefly {
+    opacity: 0.55;
+  }
+  .sign-swing {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Performance gates — only the visible chapter animates               */
+/* ------------------------------------------------------------------ */
+
+/* Added by gate-section: the chapter is far off-screen, so freeze every
+   CSS animation inside it (GSAP tweens are paused by the helper itself).
+   Animations resume the moment the visitor scrolls back. */
+.is-off *,
+.is-off *::before,
+.is-off *::after {
+  animation-play-state: paused !important;
+}
+
+/* Added while the tab is hidden — stop all CSS animation work. */
+html.anim-paused *,
+html.anim-paused *::before,
+html.anim-paused *::after {
+  animation-play-state: paused !important;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Butterfly cursor — a small blue butterfly replaces the arrow         */
+/* ------------------------------------------------------------------ */
+
+/* The follower: position + gentle bank angle are written every frame
+   (rAF) to the inline transform. Fixed, pointer-transparent, topmost. */
+.senjun-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 34px;
+  height: 26px;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  transition: opacity 260ms ease;
+}
+
+.senjun-cursor.is-visible {
+  opacity: 1;
+}
+
+/* Hover layer — grows a touch over links, buttons and cards. Kept on its
+   own element so the click pulse below can compose with it. */
+.senjun-cursor-scale {
+  width: 100%;
+  height: 100%;
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.senjun-cursor.is-hover .senjun-cursor-scale {
+  transform: scale(1.35);
+}
+
+.senjun-cursor-bf {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  filter: drop-shadow(0 2px 3px rgba(37, 74, 124, 0.38));
+}
+
+/* Click — one tiny pulse, 1 → 1.25 → 1. No particles, no trail. */
+@keyframes senjun-cursor-pulse {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.senjun-cursor.is-click .senjun-cursor-bf {
+  animation: senjun-cursor-pulse 220ms ease-out;
+}
+
+/* Wings — the site's own mini-butterfly flap, slower at rest and a
+   quicker flutter while hovering something clickable. */
+.senjun-wing {
+  transform-box: fill-box;
+  transform-origin: 10% 50%;
+  animation: mini-flap 0.9s ease-in-out infinite;
+}
+
+.senjun-wing--r {
+  transform-origin: 90% 50%;
+  animation-delay: 0.06s;
+}
+
+.senjun-cursor.is-hover .senjun-wing {
+  animation-duration: 0.34s;
+}
+
+/* Native arrow disappears only while the butterfly is actually running —
+   fine-pointer (desktop) devices only, and only once JS has mounted it. */
+@media (pointer: fine) {
+  html.senjun-cursor-on,
+  html.senjun-cursor-on * {
+    cursor: none !important;
+  }
+}
+
+/* Touch devices: no butterfly, normal touch behaviour. */
+@media (pointer: coarse) {
+  .senjun-cursor {
+    display: none !important;
+  }
+}
+
+/* Reduced motion: no trailing lag, no banking, no flap, no pulse — the
+   butterfly still follows, it just doesn't animate (handled in the
+   component + the rules here). */
+@media (prefers-reduced-motion: reduce) {
+  .senjun-wing {
+    animation: none !important;
+  }
+  .senjun-cursor-scale {
+    transition: none !important;
+  }
+  .senjun-cursor.is-click .senjun-cursor-bf {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Chapter Two — the anime travellers on the garden path              */
+/* ------------------------------------------------------------------ */
+
+/* Absolutely positioned inside the section (never fixed): the chapter's
+   story timeline fades them in and walks them along the road. Opacity 0
+   until that story runs, so the guided sequence always reads cleanly. */
+.traveller {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform, opacity;
+}
+
+/* The gentle walk — four small beats per cycle so the group reads as
+   taking alternating steps: a tiny bob up on each footfall with the body
+   swaying the other way (translate + rotate only — no scaling, so the
+   artwork never distorts). GSAP moves the outer element along the road.
+   Frozen with the chapter by `.is-off`. */
+.traveller__bob {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: 50% 100%;
+  animation: senjun-traveller-walk 1.2s ease-in-out infinite;
+}
+
+@keyframes senjun-traveller-walk {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-1deg) translateX(-1.5px);
+  }
+  25% {
+    transform: translateY(-3.5px) rotate(0.4deg) translateX(0.5px);
+  }
+  50% {
+    transform: translateY(0) rotate(1deg) translateX(1.5px);
+  }
+  75% {
+    transform: translateY(-3px) rotate(-0.4deg) translateX(-0.5px);
+  }
+}
+
+/* Crop frame — sized from the character's own aspect ratio; the shared
+   source image is offset inside it, so each traveller is shown at its
+   native proportions. */
+.traveller__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.traveller__frame img {
+  position: absolute;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* A very soft, low ellipse so nobody floats above the path. */
+.traveller__shadow {
+  position: absolute;
+  left: 9%;
+  right: 9%;
+  bottom: -3%;
+  height: 13%;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(64, 50, 30, 0.3),
+    rgba(64, 50, 30, 0) 72%
+  );
+  filter: blur(2px);
+}
+
+/* The chapter's handwritten note — upper-middle/left sky, above the
+   petals, below the warm light. Subtle, never over the travellers. */
+.senjun-journey-note {
+  position: absolute;
+  left: 30%;
+  top: 24%;
+  max-width: 320px;
+  z-index: 6;
+  pointer-events: none;
+  transform: rotate(-1deg);
+}
+
+/* Reduced motion: the travellers still stand on the path (the chapter
+   shows them statically) — they just never bob. */
+@media (prefers-reduced-motion: reduce) {
+  .traveller__bob {
+    animation: none !important;
+  }
+}
